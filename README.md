@@ -1,6 +1,6 @@
 #Storage.js
 
-Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，由于IE早期版本不支持本地存储(localStorage),幸运的是，我们可以通过userData来支持Web客户端存储更多的数据。同时由于传统本地存储cookie本身的不可替代性，Storage.js也封装了对cookie的处理。
+Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，由于IE早期版本不支持本地存储(localStorage),幸运的是，我们可以通过userData来实现更多的数据存储。同时由于cookie本身的不可替代性，Storage.js也添加了对cookie的封装处理。
 
 在介绍API之前，关于localStorage，userData，cookie有些特性需要说明一下：
 
@@ -26,6 +26,14 @@ Storage.js是WEB端本地存储的解决方案，所以在做Web开发时，如�
     Storage.cookie.add(name,value,seconds,domain,path);
     Storage.cookie.get(name);
     Storage.cookie.remove(name,value);
+    
+###实例
+
+    Storage.set('store','Hello World',60) //存储Hello word到store变量，有效期60s
+    Storage.add('store','Hello Javascript') //为本地存储数据store添加值,由于store已存在，所以有效期依然是60s
+    Storage.get('store') //"Hello Javascript,Hello World"
+    Storage.remove('store','Hello World') //删除store中的Hello World
+    Storage.remove('store') //清空本地存储数据store
 
 ### 许可协议
 
