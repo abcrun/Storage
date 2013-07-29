@@ -15,16 +15,15 @@
         //As userData has the PATH rules, we need to break the rules in order to use it in all the current domain
         //So we need an iframe
         try{
-            var htmlfile = new ActiveXObject('htmlfile'),o;
+            var htmlfile = new ActiveXObject('htmlfile'),doc,o;
             htmlfile.open();
-            htmlfile.write('<iframe src="/favicon.ico" id="userDataTunnel"></iframe>');
+            htmlfile.write('<iframe src="/favicon.ico"></iframe>');
             htmlfile.close();
-            o = htmlfile.getElementById('userDataTunnel').document.documentElement;
+            doc = htmlfile.frames[0].document;
+            o = doc.createElement('div');
+            doc.appendChild(o);
             o.addBehavior('#default#userData');
-        }catch(e){
-            o = document.documentElement;
-            o.addBehavior('#default#userData');
-        }
+        }catch(e){}
 
         return {
             get: function(name){
