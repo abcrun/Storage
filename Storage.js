@@ -1,7 +1,8 @@
 /**
 * Data Storage - UserData(IE),Cookie,LocalStorage 
 * The MIT License - Copyright (c) 2013 Hongbo Yang <abcrun@gmail.com>
-* Repository - https://github.com/abcrun/sack.git
+* Repository - https://github.com/abcrun/Storage.git
+* Version - 0.2.0
 */
 
 (function(name,factory){
