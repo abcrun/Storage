@@ -2,7 +2,7 @@
 * Data Storage - UserData(IE),Cookie,LocalStorage 
 * The MIT License - Copyright (c) 2013 Hongbo Yang <abcrun@gmail.com>
 * Repository - https://github.com/abcrun/Storage.git
-* Version - 0.2.0
+* Version - 0.3.0
 */
 
 (function(name,factory){
@@ -10,6 +10,15 @@
 	else if(typeof module === 'object' && module.exports) module.exports = factory();//CommonJS
 	else this[name] = factory();//Global
 })('Storage',function(){
+    //Determin whether json2.js is included
+    var JSON = (window.JSON && window.JSON.stringify && window.JSON.parse ? window.JSON : {
+        stringify:function(obj){
+            return obj;
+        },
+        parse:function(str){
+            return str;
+        }
+    });
 	var userData = function(){
         var o;
         //userData for IE: http://msdn.microsoft.com/zh-cn/vstudio/ms531424
@@ -37,76 +46,45 @@
                     d.setTime(d.getTime() + seconds*1000);
                     o.expires = d.toUTCString();
                 }
-                o.setAttribute(name,value);
-                o.save(name);
-            },
-            add: function(name,value,seconds){
-                o.load(name);
-                var v = o.getAttribute(name) || '';
-                if(!v) return this.set(name,value,seconds);
-                var rValue = new RegExp('(?:^|,)' + value);
-                if(value && !rValue.test(v)){
-                    o.setAttribute(name,value + ',' + v);
-                }
+                o.setAttribute(name,JSON.stringify(value));
                 o.save(name);
             },
             remove: function(name,value){
-                o.load(name);
-                var v = o.getAttribute(name) || '';
-                if(!v) return;
-                if(value){
-                    var rValue = new RegExp('(?:^|,)' + value),value = v.replace(rValue,'');
-                    this.set(name,value);
-                }else{
-                    o.removeAttribute(name);
-                    o.save(name);
-                }
+                o.removeAttribute(name);
+                o.save(name);
             }
         }
 	};
 
 	var _localStorage = {
 		get: function(name){
-			var v = localStorage.getItem(name),d = new Date().getTime(),exReg = /^\[(\d+)\],/,expires = exReg.exec(v);
-            if(expires){
-                if(expires[1] <= d){
+			var v = localStorage.getItem(name);
+            if(!v) return null;
+            v = JSON.parse(v);
+            if(typeof v == 'string') return v;
+            //If the first element is an object with "expires" property, it may be an expiring date(number at least 13 digits) of the current data. 
+            var expires = v[0].expires;
+            if(expires && /^\d{13,}$/.test(expires)){
+                var d = new Date().getTime();
+                if(expires <= d){
                     localStorage.removeItem(name);
-                    v = null; 
-                }else{
-                    v = v.replace(exReg,'');
+                    return null;
                 }
+                v.shift();
             }
-			return v;
+			return v[0];
 		},
 		set: function(name,value,seconds){
-			var expires = '';
+			var v = [];
 			if(seconds){
 				var d = new Date().getTime();
-				expires = '[' + (d + seconds*1000) + '],';
+                v.push({"expires":(d + seconds*1000)});
 			}
-			localStorage.setItem(name,expires + value);
+            v.push(value);
+			localStorage.setItem(name,JSON.stringify(v));
 		},
-		add: function(name,value,seconds){
-			var v = this.get(name) || '';
-			if(!v) return this.set(name,value,seconds);
-
-            var expires = /^\[\d+\]/.exec(localStorage.getItem(name));
-            if(expires) expires = expires[0] + ',';
-            else expires = ''
-			var rValue = new RegExp('(?:,|^)' + value);
-			if(value && !rValue.test(v)){
-				localStorage.setItem(name,expires + value + ',' + v);
-			}
-		},
-		remove: function(name,value){
-			var v = this.get(name) || '';
-			if(!v) return;
-			if(value){
-				var rValue = new RegExp('(?:,|^)' + value),value = v.replace(rValue,'');
-				this.set(name,value);
-			}else{
-				localStorage.removeItem(name);
-			}
+		remove: function(name){
+			localStorage.removeItem(name);
 		}
 	}
 	var cookie = {
@@ -115,14 +93,15 @@
 			var start = v.indexOf(name + '='),end = v.indexOf(';',start);
 			if(end == -1) end = v.length;
 			if(start > -1){
-				return v.substring(start + name.length + 1,end);
+				return JSON.parse(v.substring(start + name.length + 1,end));
 			}else{
 				return null;
 			}
 		},
 		set: function(name,value,seconds,domain,path){
-			var domain = domain || document.domain,path = path || '/',expires = '';
+			var domain = domain || document.domain,path = path || '/',expires = '',v;
 			if(seconds){
+                //IE:expires,Others:max-age
 				if(window.ActiveXObject){
 					var d = new Date();
 					d.setTime(d.getTime() + seconds*1000);
@@ -131,23 +110,11 @@
 					expires = 'max-age=' + seconds;
 				}
 			}
-			document.cookie = name + '=' + value + ';path=' + path + ';domain=' + domain + ';' + expires;
+			document.cookie = name + '=' + JSON.stringify(value) + ';path=' + path + ';domain=' + domain + ';' + expires;
 		},
-		add: function(name,value,seconds,domain,path){
-			var v = this.get(name) || '';
-			if(!v) return this.set(name,value,seconds,domain,path);
-			var rValue = new RegExp('(?:^|,)' + value);
-			if(!rValue.test(v)) this.set(name,value + ',' + v,seconds,domain,path);
-		},
-		remove: function(name,value,seconds,domain,path){
-			var v = this.get(name) || '';
-			if(!v) return;
-			if(value){
-				var rValue = new RegExp('(?:,|^)' + value),value = v.replace(rValue,'');
-				this.set(name,value,days,domain,path);
-			}else{
-				this.set(name,value,0,domain,path);
-			}
+		remove: function(name,domain,path){
+            var domain = domain || document.domain,path = path || '/';
+			this.set(name,'',0,domain,path);
 		}
 	}
 
@@ -159,7 +126,6 @@
 	return {
         get:adapter.get,
         set:adapter.set,
-        add:adapter.add,
         remove:adapter.remove,
 		cookie:cookie
 	}
