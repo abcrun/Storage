@@ -38,7 +38,7 @@
         return {
             get: function(name){
                 o.load(name);
-                return o.getAttribute(name);
+                return JSON.parse(o.getAttribute(name));
             },
             set: function(name,value,seconds){
                 if(seconds){
