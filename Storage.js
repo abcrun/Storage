@@ -56,37 +56,50 @@
         }
 	};
 
-	var _localStorage = {
-		get: function(name){
-			var v = localStorage.getItem(name);
-            if(!v) return null;
-            v = JSON.parse(v);
-            if(typeof v == 'string') return v;
-            //If the first element is an object with "expires" property, it may be an expiring date(number at least 13 digits) of the current data. 
-            var expires = v[0].expires;
-            if(expires && /^\d{13,}$/.test(expires)){
-                var d = new Date().getTime();
-                if(expires <= d){
-                    localStorage.removeItem(name);
-                    return null;
-                }
-                v.shift();
+	var _localStorage = function(){
+        //Clear the outdated data
+        var d = new Date().getTime();
+        for(key in localStorage){
+            var v = localStorage.getItem(key);
+            //If you add storage throw localStorage.setItem("abc","abcvalue") not Storage.set("abc","abcvalue"),it will catch an error when parse the value "abcvalue" 
+            try{v = JSON.parse(v)}catch(e){};
+            if(toString.call(v).toLowerCase().indexOf('array') > 0){
+                var expires = v[0].expires;
+                if(expires && /^\d{13,}$/.test(expires) && expires <= d) localStorage.removeItem(key);
             }
-			return v[0];
-		},
-		set: function(name,value,seconds){
-			var v = [];
-			if(seconds){
-				var d = new Date().getTime();
-                v.push({"expires":(d + seconds*1000)});
-			}
-            v.push(value);
-			localStorage.setItem(name,JSON.stringify(v));
-		},
-		remove: function(name){
-			localStorage.removeItem(name);
-		}
-	}
+        }
+        return {
+            get: function(name){
+                var v = localStorage.getItem(name);
+                if(!v) return null;
+                try{v = JSON.parse(v)}catch(e){};
+                if(typeof v == 'string') return v;
+                //If the first element is an object with "expires" property, it may be an expiring date(number at least 13 digits) of the current data. 
+                var expires = v[0].expires;
+                if(expires && /^\d{13,}$/.test(expires)){
+                    var d = new Date().getTime();
+                    if(expires <= d){
+                        localStorage.removeItem(name);
+                        return null;
+                    }
+                    v.shift();
+                }
+                return v[0];
+            },
+            set: function(name,value,seconds){
+                var v = [];
+                if(seconds){
+                    var d = new Date().getTime();
+                    v.push({"expires":(d + seconds*1000)});
+                }
+                v.push(value);
+                localStorage.setItem(name,JSON.stringify(v));
+            },
+            remove: function(name){
+                localStorage.removeItem(name);
+            }
+        }
+    }
 	var cookie = {
 		get: function(name){
 			var v = document.cookie;
@@ -118,9 +131,11 @@
 		}
 	}
 
-    var adapter = _localStorage;
+    var adapter;
     if(!window.localStorage){
         adapter = userData();
+    }else{
+        adapter = _localStorage();
     }
 
 	return {
