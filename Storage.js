@@ -37,8 +37,12 @@
 
         return {
             get: function(name){
+                var value;
                 o.load(name);
-                return JSON.parse(o.getAttribute(name));
+
+                value = o.getAttribute(name);
+                try{value = JSON.parse(value)}catch(e){}
+                return value;
             },
             set: function(name,value,seconds){
                 if(seconds){
@@ -73,7 +77,7 @@
                 var v = localStorage.getItem(name);
                 if(!v) return null;
                 try{v = JSON.parse(v)}catch(e){};
-                if(typeof v == 'string') return v;
+                if(typeof v != 'object') return v;
                 //If the first element is an object with "expires" property, it may be an expiring date(number at least 13 digits) of the current data. 
                 var expires = v[0].expires;
                 if(expires && /^\d{13,}$/.test(expires)){
@@ -102,11 +106,13 @@
     }
 	var cookie = {
 		get: function(name){
-			var v = document.cookie;
+			var v = document.cookie,result;
 			var start = v.indexOf(name + '='),end = v.indexOf(';',start);
 			if(end == -1) end = v.length;
 			if(start > -1){
-				return JSON.parse(v.substring(start + name.length + 1,end));
+                result = v.substring(start + name.length + 1,end);
+                try{result = JSON.parse(result)}catch(e){};
+				return result;
 			}else{
 				return null;
 			}
