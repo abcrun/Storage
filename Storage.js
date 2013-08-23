@@ -67,7 +67,7 @@
             var v = localStorage.getItem(key);
             //If you add storage throw localStorage.setItem("abc","abcvalue") not Storage.set("abc","abcvalue"),it will catch an error when parse the value "abcvalue" 
             try{v = JSON.parse(v)}catch(e){};
-            if(toString.call(v).toLowerCase().indexOf('array') > 0){
+            if(Object.prototype.toString.call(v).toLowerCase().indexOf('array') > 0){
                 var expires = v[0].expires;
                 if(expires && /^\d{13,}$/.test(expires) && expires <= d) localStorage.removeItem(key);
             }
