@@ -6,9 +6,9 @@
 */
 
 (function(name,factory){
-	if(typeof define === 'function' && define.amd) define(factory);//AMD
-	else if(typeof module === 'object' && module.exports) module.exports = factory();//CommonJS
-	else this[name] = factory();//Global
+    if(typeof define === 'function' && define.amd) define(factory);//AMD
+    else if(typeof module === 'object' && module.exports) module.exports = factory();//CommonJS
+    else this[name] = factory();//Global
 })('Storage',function(){
     //Determin whether json2.js is included
     var JSON = (window.JSON && window.JSON.stringify && window.JSON.parse ? window.JSON : {
@@ -19,7 +19,7 @@
             return str;
         }
     });
-	var userData = function(){
+    var userData = function(){
         var o;
         //userData for IE: http://msdn.microsoft.com/zh-cn/vstudio/ms531424
         //As userData has the PATH rules, we need to break the rules in order to use it in all the current domain
@@ -58,9 +58,9 @@
                 o.save(name);
             }
         }
-	};
+    };
 
-	var _localStorage = function(){
+    var _localStorage = function(){
         //Clear the outdated data
         var d = new Date().getTime();
         for(key in localStorage){
@@ -104,38 +104,38 @@
             }
         }
     }
-	var cookie = {
-		get: function(name){
-			var v = document.cookie,result;
-			var start = v.indexOf(name + '='),end = v.indexOf(';',start);
-			if(end == -1) end = v.length;
-			if(start > -1){
+    var cookie = {
+        get: function(name){
+            var v = document.cookie,result;
+            var start = v.indexOf(name + '='),end = v.indexOf(';',start);
+            if(end == -1) end = v.length;
+            if(start > -1){
                 result = v.substring(start + name.length + 1,end);
                 try{result = JSON.parse(result)}catch(e){};
-				return result;
-			}else{
-				return null;
-			}
-		},
-		set: function(name,value,seconds,domain,path){
-			var domain = domain || document.domain,path = path || '/',expires = '',v;
-			if(seconds){
+                return result;
+            }else{
+                return null;
+            }
+        },
+        set: function(name,value,seconds,domain,path){
+            var domain = domain || document.domain,path = path || '/',expires = '',v;
+            if(seconds){
                 //IE:expires,Others:max-age
-				if(window.ActiveXObject){
-					var d = new Date();
-					d.setTime(d.getTime() + seconds*1000);
-					expires = 'expires=' + d.toGMTString();
-				}else{
-					expires = 'max-age=' + seconds;
-				}
-			}
-			document.cookie = name + '=' + JSON.stringify(value) + ';path=' + path + ';domain=' + domain + ';' + expires;
-		},
-		remove: function(name,domain,path){
+                if(window.ActiveXObject){
+                    var d = new Date();
+                    d.setTime(d.getTime() + seconds*1000);
+                    expires = 'expires=' + d.toGMTString();
+                }else{
+                    expires = 'max-age=' + seconds;
+                }
+            }
+            document.cookie = name + '=' + JSON.stringify(value) + ';path=' + path + ';domain=' + domain + ';' + expires;
+        },
+        remove: function(name,domain,path){
             var domain = domain || document.domain,path = path || '/';
-			this.set(name,'',0,domain,path);
-		}
-	}
+            this.set(name,'',0,domain,path);
+        }
+    }
 
     var adapter;
     if(!window.localStorage){
@@ -144,10 +144,10 @@
         adapter = _localStorage();
     }
 
-	return {
+    return {
         get:adapter.get,
         set:adapter.set,
         remove:adapter.remove,
-		cookie:cookie
-	}
+        cookie:cookie
+    }
 })
