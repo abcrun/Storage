@@ -7,7 +7,7 @@ Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，由于IE�
 - cookie会随着HTTP请求的头报文发送到服务端，而localStorage,userData则不会
 - 三者可存储数据大小有区别
 - localStorage本身没有失效时间，Storage.js对其添加了失效时间的扩展
-- userData只能操作当前Path下的数据，为了方便不同Path下本地数据的共享，Storage.js通过htmlfile创建iframe指向到当前域根目录的favcion.icon下，实现同域不同Path数据共享与操作。
+- userData只能操作当前Path下的数据，为了方便不同Path下本地数据的共享，Storage.js通过htmlfile创建iframe指向到当前域根目录的favcion.icon下，实现同域不同Path数据共享与操作（所以必须保证根目录下favcion.icon存在）。
 
 ###使用范围
 
