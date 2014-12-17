@@ -1,6 +1,6 @@
 #Storage.js
 
-Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，由于IE早期版本不支持本地存储(localStorage),幸运的是，可以通过userData来实现更多的数据存储。同时由于cookie本身的不可替代性，Storage.js也添加了对cookie的封装处理。
+Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，虽然IE早期不支持本地存储(localStorage),但是可以通过userData来实现更多的本地数据存储。由于cookie本身的不可替代性，Storage.js也添加了对cookie的封装处理。
 
 在介绍API之前，关于localStorage，userData，cookie有些特性需要说明一下：
 
@@ -13,11 +13,7 @@ Storage.js是一个基于HTML5 Web本地存储的扩展解决方案，由于IE�
 
 Storage.js是WEB端本地存储的解决方案，所以在做Web开发时，如果需要将数据存储到客户端，都可以使用Storage.js，当然一定要考虑两点：这些数据存储到客户端是否安全；本地可存储数据的大小。同时Storage.js还支持CommonJS和AMD标准规范，所以我们能够很方便的调用。
 
-###使用说明
-
-若要存储JSON,Array等Object数据，需要在Storage.js之前加载json2-min.js，或者直接引用json2Store-min.js。相反如果仅仅存储字符串或数字，可不必加载json2-min.js（3K），以节省带宽。
-
-**Notice** ：关于json2.js详细信息，请参考 https://github.com/douglascrockford/JSON-js
+从0.3.1开始，Storage.js默认引用了`json2.js`:<https://github.com/douglascrockford/JSON-js>,这样可以方便的存储JSON,Array等Object数据。
 
 ###语法
 
@@ -27,7 +23,7 @@ Storage.js是WEB端本地存储的解决方案，所以在做Web开发时，如�
 
     //以下是对cookie的处理
 
-    Storage.cookie.set(name,value,seconds,domain,path);
+    Storage.cookie.set(name,value,seconds,path,domain);
     Storage.cookie.get(name);
     Storage.cookie.remove(name);
     
@@ -38,7 +34,5 @@ Storage.js是WEB端本地存储的解决方案，所以在做Web开发时，如�
     Storage.remove('store') //清空本地存储数据store
 
 ### 许可协议
-
-Copyright (c) 2013 Hongbo Yang <abcrun@gmail.com>
 
 The MIT License
